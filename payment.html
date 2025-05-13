@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment - The Woods</title>
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    body {
+      background-color: #fefefe;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .payment-section {
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .payment-section img {
+      max-width: 280px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 25px;
+    }
+
+    .sec-btn {
+      background-color: #2d6a4f;
+      color: white;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin: 10px;
+    }
+
+    .sec-btn:hover {
+      background-color: #1b4332;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="payment-section">
+    <div class="container">
+      <h1 class="mb-3">Make Your Payment</h1>
+      <p>Scan the QR code below to pay via <strong>Google Pay</strong></p>
+      <img src="assets/images/gpay-qr.jpg" alt="GPay QR Code" />
+      <p class="mt-3">Please mention your name or order ID in the UPI note for reference.</p>
+
+      <button class="sec-btn" onclick="confirmPayment()">I’ve Paid</button>
+      <h4 style="margin: 20px 0;">Or</h4>
+      <button class="sec-btn" onclick="payOnDelivery()">Cash on Delivery</button>
+    </div>
+  </section>
+
+  <script>
+    const orderDetails = JSON.parse(localStorage.getItem("orderDetails"));
+
+    if (!orderDetails || !orderDetails.phone) {
+      alert("Order details missing. Cannot proceed.");
+      window.location.href = "billing.html";
+    }
+
+    async function confirmPayment() {
+      try {
+        const res = await fetch("http://localhost:3001/api/payment-confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: orderDetails.phone })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          alert("Thank you! Your payment has been confirmed.");
+          localStorage.removeItem("cart");
+          localStorage.removeItem("orderDetails");
+          window.location.href = "index.html";
+        } else {
+          alert("Failed to confirm payment: " + result.error);
+        }
+      } catch (err) {
+        console.error("Payment error:", err);
+        alert("Something went wrong. Please try again.");
+      }
+    }
+
+    async function payOnDelivery() {
+      try {
+        const res = await fetch("http://localhost:3001/api/payment-confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: orderDetails.phone })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          alert("Your order has been confirmed with Cash on Delivery.");
+          localStorage.removeItem("cart");
+          localStorage.removeItem("orderDetails");
+          window.location.href = "index.html";
+        } else {
+          alert("Failed to confirm order: " + result.error);
+        }
+      } catch (err) {
+        console.error("COD error:", err);
+        alert("Something went wrong. Try again.");
+      }
+    }
+  </script>
+</body>
+
+</html>

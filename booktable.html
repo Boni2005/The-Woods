@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Table | The Woods</title>
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <style>
+    body {
+      background: url('assets/images/restaurant-bg.jpg') no-repeat center center/cover;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .book-form {
+      background: rgba(255, 255, 255, 0.85);
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      max-width: 550px;
+      width: 100%;
+      animation: fadeIn 1s ease;
+      text-align: center;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .book-form h2 {
+      color: #8B4513;
+      margin-bottom: 1.5rem;
+    }
+    .form-control {
+      border-radius: 30px;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .btn-book {
+      background-color: #8B4513;
+      color: #fff;
+      padding: 0.75rem;
+      border-radius: 30px;
+      width: 100%;
+      font-size: 1rem;
+      border: none;
+      transition: 0.3s;
+    }
+    .btn-book:hover {
+      background-color: #A0522D;
+    }
+  </style>
+</head>
+
+<body>
+
+<form class="book-form" id="bookTableForm">
+  <h2>Book Your Table</h2>
+
+  <input type="text" id="name" class="form-control" placeholder="Your Full Name" required>
+  <input type="tel" id="phone" class="form-control" placeholder="Phone Number" required>
+  <input type="date" id="date" class="form-control" required>
+  <input type="time" id="time" class="form-control" required>
+  <input type="number" id="people" class="form-control" placeholder="Number of People" min="1" required>
+  <textarea id="requests" class="form-control" placeholder="Special Requests (Optional)" rows="3"></textarea>
+
+  <button type="submit" class="btn btn-book mt-3">Book Table</button>
+</form>
+
+<script>
+  document.getElementById("bookTableForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const data = {
+      name: document.getElementById("name").value,
+      phone: document.getElementById("phone").value,
+      date: document.getElementById("date").value,
+      time: document.getElementById("time").value,
+      people: Number(document.getElementById("people").value),
+      requests: document.getElementById("requests").value
+    };
+
+    try {
+      const res = await fetch("http://localhost:3001/api/booktable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert("Table booked successfully!");
+        window.location.href = "confirmation.html";
+      } else {
+        alert("Booking failed: " + result.error);
+      }
+
+    } catch (error) {
+      console.error("Booking error:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  });
+</script>
+
+</body>
+</html>

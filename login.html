@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Woods | Login</title>
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
+  <style>
+    body {
+      background: linear-gradient(to right, #ffecd2, #fcb69f);
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .login-box {
+      background: #fff;
+      padding: 2.5rem;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+    }
+
+    .login-box h2 {
+      margin-bottom: 1.5rem;
+      color: #d35400;
+    }
+
+    .form-control {
+      border-radius: 30px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn-custom {
+      border-radius: 30px;
+      padding: 0.75rem;
+      width: 100%;
+      background: #d35400;
+      border: none;
+      color: #fff;
+      transition: 0.3s ease-in-out;
+    }
+
+    .btn-custom:hover {
+      background: #e67e22;
+    }
+
+    .switch-user {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <h2><i class="uil uil-user-circle"></i> Login</h2>
+      <form id="loginForm">
+        <input type="email" id="email" class="form-control" placeholder="Enter your email" required />
+        <input type="password" id="password" class="form-control" placeholder="Enter your password" required />
+        <button type="submit" class="btn btn-custom">Login</button>
+      </form>
+      <div class="switch-user">
+        New customer? <a href="register.html">Register here</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+  
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+  
+      try {
+        const response = await fetch("http://localhost:3001/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+  
+        const data = await response.json();
+        console.log("Login API response:", data); // 👀 Check this in DevTools > Console
+  
+        if (response.ok && data.token && data.role) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("role", data.role);
+  
+          // ✅ Redirect based on role
+          if (data.role === "admin") {
+            window.location.href = "dashboard.html";
+          } else {
+            window.location.href = "index.html";
+          }
+        } else {
+          alert(data.error || "Login failed");
+        }
+  
+      } catch (error) {
+        console.error("Login error:", error);
+        alert("An error occurred while logging in.");
+      }
+    });
+  </script>
+  
+</body>
+</html>

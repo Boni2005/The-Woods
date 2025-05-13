@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Order History</title>
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #f5f5f5;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 30px;
+    }
+    .history-container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2d6a4f;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background-color: #2d6a4f;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #1b4332;
+    }
+    .order {
+      background-color: #f8f8f8;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .order small {
+      display: block;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="history-container">
+    <h2>Your Order History</h2>
+    <input type="text" id="phoneInput" placeholder="Enter your phone number"/>
+    <button onclick="fetchOrders()">Show My Orders</button>
+    <div id="ordersResult" style="margin-top: 20px;"></div>
+  </div>
+
+  <script>
+    async function fetchOrders() {
+      const phone = document.getElementById("phoneInput").value.trim();
+      const resultDiv = document.getElementById("ordersResult");
+      resultDiv.innerHTML = "";
+
+      if (!phone) {
+        alert("Please enter your phone number.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:3001/api/orders?phone=${phone}`);
+        const data = await res.json();
+
+        if (!data.length) {
+          resultDiv.innerHTML = "<p>No orders found.</p>";
+          return;
+        }
+
+        data.forEach(order => {
+          const div = document.createElement("div");
+          div.classList.add("order");
+
+          div.innerHTML = `
+            <strong>Total: ₹${order.total}</strong>
+            <small>Phone: ${order.phone}</small>
+            <small>Date: ${new Date(order.createdAt).toLocaleString()}</small>
+            <small>Items: ${order.items.map(item => item.name).join(", ")}</small>
+            <small>Status: ${order.paid ? "✅ Paid" : "❌ Not Paid"}</small>
+          `;
+
+          resultDiv.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        resultDiv.innerHTML = "<p>Something went wrong.</p>";
+      }
+    }
+  </script>
+</body>
+</html>
